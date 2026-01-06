@@ -5,11 +5,218 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Goutham's Portfolio">
     <title>Goutham</title>
-    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* ===========================
+           RESET & BASE STYLES
+           =========================== */
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+        }
+
+        body {
+            font-family: "SF Pro Rounded", ui-rounded, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+            background-color: #fafafa;
+            color: #000000;
+            min-height: 100vh;
+            overflow-x: hidden;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        /* ===========================
+           MAIN LAYOUT
+           =========================== */
+
+        main {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* ===========================
+           WORDMARK
+           =========================== */
+
+        .wordmark {
+            font-size: clamp(3rem, 10vw, 12rem);
+            font-weight: 400;
+            letter-spacing: -0.02em;
+            line-height: 1;
+            text-align: center;
+        }
+
+        /* ===========================
+           RESPONSIVE DESIGN
+           =========================== */
+
+        /* Tablet */
+        @media (max-width: 768px) {
+            .wordmark {
+                font-size: clamp(2.5rem, 12vw, 8rem);
+            }
+        }
+
+        /* Mobile */
+        @media (max-width: 480px) {
+            .wordmark {
+                font-size: clamp(2rem, 15vw, 5rem);
+                letter-spacing: -0.01em;
+            }
+        }
+
+        /* Landscape orientation adjustments */
+        @media (orientation: landscape) and (max-height: 600px) {
+            .wordmark {
+                font-size: clamp(2rem, 8vh, 6rem);
+            }
+
+            main {
+                min-height: 100vh;
+            }
+        }
+
+        /* Portrait orientation adjustments */
+        @media (orientation: portrait) {
+            .wordmark {
+                font-size: clamp(2.5rem, 13vw, 10rem);
+            }
+        }
+
+        /* High resolution displays */
+        @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+            body {
+                -webkit-font-smoothing: subpixel-antialiased;
+            }
+        }
+
+        /* Reduced motion for accessibility */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+
+            html {
+                scroll-behavior: auto;
+            }
+        }
+
+        /* ===========================
+           CONTENT OVERLAY
+           =========================== */
+
+        .content-overlay {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            backdrop-filter: blur(0px);
+            -webkit-backdrop-filter: blur(0px);
+        }
+
+        .content-overlay.visible {
+            opacity: 1;
+            pointer-events: auto;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+
+        .content-text {
+            max-width: 800px;
+            text-align: center;
+        }
+
+        .content-header {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 400;
+            margin-bottom: 3rem;
+            line-height: 1.3;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .content-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .content-list li {
+            font-size: clamp(1.5rem, 3vw, 2.5rem);
+            font-weight: 400;
+            line-height: 1.5;
+            opacity: 0;
+            transform: translateY(15px);
+        }
+
+        /* Interaction hint */
+        .tap-hint {
+            position: fixed;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.875rem;
+            opacity: 0.4;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .tap-hint.hidden {
+            opacity: 0;
+        }
+
+        /* Mobile adjustments */
+        @media (max-width: 768px) {
+            .content-overlay {
+                padding: 24px;
+            }
+
+            .content-header {
+                margin-bottom: 2rem;
+            }
+
+            .content-list {
+                margin-bottom: 2rem;
+            }
+        }
+    </style>
 </head>
 <body>
     <main>
-        <h1 class="wordmark">goutham</h1>
+        <h1 class="wordmark" data-animated-wordmark>goutham</h1>
+        <div class="tap-hint">Tap anywhere</div>
     </main>
+
+    <div class="content-overlay">
+        <div class="content-text">
+            <ul class="content-list">
+                <li>Design</li>
+                <li>Architect</li>
+                <li>Engineer</li>
+            </ul>
+        </div>
+    </div>
+
+    <script src="vanilla-animation.js"></script>
+    <script src="content-reveal.js"></script>
 </body>
 </html>
