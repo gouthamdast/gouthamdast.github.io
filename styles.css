@@ -53,48 +53,6 @@ main {
 }
 
 /* ===========================
-   INFO BUTTON
-   =========================== */
-
-.info-button {
-    position: fixed;
-    top: 22px;
-    left: 22px;
-    width: 44px;
-    height: 44px;
-    background: transparent;
-    border: 1px solid #000000;
-    border-radius: 50%;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    opacity: 0;
-    animation: fadeIn 1s ease-out forwards;
-    animation-delay: 0.8s;
-    z-index: 1000;
-}
-
-.info-button:hover {
-    background-color: #000000;
-    transform: scale(1.05);
-}
-
-.info-button:hover svg {
-    color: #fafafa;
-}
-
-.info-button:active {
-    transform: scale(0.95);
-}
-
-.info-button svg {
-    color: #000000;
-    transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* ===========================
    ANIMATIONS
    =========================== */
 
@@ -118,13 +76,6 @@ main {
     .wordmark {
         font-size: clamp(2.5rem, 12vw, 8rem);
     }
-
-    .info-button {
-        top: 16px;
-        left: 16px;
-        width: 40px;
-        height: 40px;
-    }
 }
 
 /* Mobile */
@@ -132,18 +83,6 @@ main {
     .wordmark {
         font-size: clamp(2rem, 15vw, 5rem);
         letter-spacing: -0.01em;
-    }
-
-    .info-button {
-        top: 12px;
-        left: 12px;
-        width: 36px;
-        height: 36px;
-    }
-
-    .info-button svg {
-        width: 14px;
-        height: 14px;
     }
 }
 
