@@ -20,7 +20,7 @@ html {
 }
 
 body {
-  font-family: "SF Pro Text", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  font-family: "SF Pro Rounded", ui-rounded, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   background-color: #fafafa;
   color: #000000;
   min-height: 100vh;
@@ -55,9 +55,9 @@ body {
    =========================== */
 
 .wordmark {
-  font-family: "SF Pro Text", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  font-family: "SF Pro Rounded", ui-rounded, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   font-size: clamp(3rem, 10vw, 12rem);
-  font-weight: 300;
+  font-weight: 350;
   letter-spacing: -0.02em;
   line-height: 1;
   color: #000000;
