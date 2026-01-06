@@ -1,0 +1,76 @@
+/* ===========================
+   CONTENT OVERLAY STYLES
+   =========================== */
+
+.click-capture {
+  position: fixed;
+  inset: 0;
+  cursor: pointer;
+}
+
+.content-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+  z-index: 100;
+  pointer-events: none;
+}
+
+.content-text {
+  max-width: 800px;
+  text-align: center;
+  pointer-events: auto;
+}
+
+.content-header {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 400;
+  margin-bottom: 3rem;
+  line-height: 1.3;
+}
+
+.content-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.content-list li {
+  font-size: clamp(1.5rem, 3vw, 2.5rem);
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+/* Interaction hint */
+.tap-hint {
+  position: fixed;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.875rem;
+  pointer-events: none;
+  z-index: 50;
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+  .content-overlay {
+    padding: 24px;
+  }
+
+  .content-header {
+    margin-bottom: 2rem;
+  }
+
+  .content-list {
+    margin-bottom: 2rem;
+  }
+
+  .tap-hint {
+    bottom: 24px;
+  }
+}

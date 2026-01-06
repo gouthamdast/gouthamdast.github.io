@@ -44,7 +44,7 @@ main {
 .wordmark {
     font-family: "SF Pro Rounded", ui-rounded, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
     font-size: clamp(3rem, 10vw, 12rem);
-    font-weight: 350;
+    font-weight: 400;
     letter-spacing: -0.02em;
     line-height: 1;
     opacity: 0;
