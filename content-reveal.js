@@ -1,14 +1,16 @@
 /**
- * Content Reveal - Apple-style Progressive Disclosure
+ * Content Reveal - Apple-style Progressive Disclosure with GSAP
  *
  * Handles smooth, progressive reveal of content when user interacts
  * with the page. Features:
  * - Click/tap anywhere to reveal
  * - Staggered animations for list items
  * - Backdrop blur effect
- * - Spring-based easing
+ * - Spring-based easing with GSAP
  * - Toggle on/off functionality
  */
+
+import gsap from 'gsap';
 
 class ContentReveal {
   constructor() {
@@ -19,9 +21,8 @@ class ContentReveal {
     this.animationInProgress = false;
 
     // Animation timing configuration
-    this.staggerDelay = 60; // ms between list items
-    this.itemDuration = 400; // ms per item
-    this.easing = 'cubic-bezier(0.16, 1, 0.3, 1)'; // Apple-style ease-out-expo
+    this.staggerDelay = 0.06; // seconds between list items
+    this.itemDuration = 0.4; // seconds per item
 
     this.init();
   }
@@ -56,13 +57,21 @@ class ContentReveal {
   showTapHint() {
     // Fade in the tap hint
     if (this.tapHint) {
-      this.tapHint.style.opacity = '0.4';
+      gsap.to(this.tapHint, {
+        opacity: 0.4,
+        duration: 0.3,
+        ease: 'power2.out'
+      });
     }
   }
 
   hideTapHint() {
     if (this.tapHint) {
-      this.tapHint.style.opacity = '0';
+      gsap.to(this.tapHint, {
+        opacity: 0,
+        duration: 0.3,
+        ease: 'power2.out'
+      });
     }
   }
 
@@ -79,54 +88,48 @@ class ContentReveal {
     this.isRevealed = true;
     this.hideTapHint();
 
-    // Phase 1: Fade out main content (wordmark)
-    this.main.animate(
-      [
-        { opacity: 1, transform: 'scale(1)' },
-        { opacity: 0, transform: 'scale(0.95)' }
-      ],
-      {
-        duration: 400,
-        easing: this.easing,
-        fill: 'forwards'
+    // Create master timeline for coordinated animation
+    const tl = gsap.timeline({
+      onComplete: () => {
+        this.animationInProgress = false;
       }
-    );
+    });
+
+    // Phase 1: Fade out main content (wordmark)
+    tl.to(this.main, {
+      opacity: 0,
+      scale: 0.95,
+      duration: 0.4,
+      ease: 'expo.out'
+    }, 0);
 
     // Phase 2: Show overlay with backdrop blur (slight delay)
-    setTimeout(() => {
+    tl.add(() => {
       this.overlay.classList.add('visible');
+    }, 0.2);
 
-      // Phase 3: Progressive reveal of content
-      this.animateContentIn();
-    }, 200);
+    // Phase 3: Progressive reveal of content
+    tl.add(() => this.animateContentIn(), 0.4);
   }
 
   animateContentIn() {
     const listItems = this.overlay.querySelectorAll('.content-list li');
 
-    // Stagger animate list items
-    listItems.forEach((item, index) => {
-      const delay = 200 + (index * this.staggerDelay);
-
-      item.animate(
-        [
-          { opacity: 0, transform: 'translateY(15px)' },
-          { opacity: 1, transform: 'translateY(0)' }
-        ],
-        {
-          duration: this.itemDuration,
-          delay: delay,
-          easing: this.easing,
-          fill: 'forwards'
-        }
-      );
-    });
-
-    // Mark animation as complete
-    const lastItemDelay = 200 + ((listItems.length - 1) * this.staggerDelay);
-    setTimeout(() => {
-      this.animationInProgress = false;
-    }, lastItemDelay + this.itemDuration);
+    // Stagger animate list items using GSAP's built-in stagger
+    gsap.fromTo(listItems,
+      {
+        opacity: 0,
+        y: 15
+      },
+      {
+        opacity: 1,
+        y: 0,
+        duration: this.itemDuration,
+        stagger: this.staggerDelay,
+        ease: 'expo.out', // Apple-style spring easing
+        delay: 0.2
+      }
+    );
   }
 
   hideContent() {
@@ -135,42 +138,37 @@ class ContentReveal {
 
     const listItems = this.overlay.querySelectorAll('.content-list li');
 
-    // Reverse animation - fade out all elements quickly
-    listItems.forEach((element, index) => {
-      element.animate(
-        [
-          { opacity: 1, transform: 'translateY(0)' },
-          { opacity: 0, transform: 'translateY(-10px)' }
-        ],
-        {
-          duration: 300,
-          delay: index * 20, // Faster reverse stagger
-          easing: 'ease-in',
-          fill: 'forwards'
-        }
-      );
+    // Create timeline for hide animation
+    const tl = gsap.timeline({
+      onComplete: () => {
+        this.animationInProgress = false;
+      }
     });
 
+    // Reverse animation - fade out all elements quickly with stagger
+    tl.to(listItems, {
+      opacity: 0,
+      y: -10,
+      duration: 0.3,
+      stagger: 0.02, // Faster reverse stagger
+      ease: 'power2.in'
+    }, 0);
+
     // Hide overlay
-    setTimeout(() => {
+    tl.add(() => {
       this.overlay.classList.remove('visible');
+    }, 0.4);
 
-      // Fade main content back in
-      this.main.animate(
-        [
-          { opacity: 0, transform: 'scale(0.95)' },
-          { opacity: 1, transform: 'scale(1)' }
-        ],
-        {
-          duration: 400,
-          easing: this.easing,
-          fill: 'forwards'
-        }
-      );
+    // Fade main content back in
+    tl.to(this.main, {
+      opacity: 1,
+      scale: 1,
+      duration: 0.4,
+      ease: 'expo.out'
+    }, 0.4);
 
-      this.showTapHint();
-      this.animationInProgress = false;
-    }, 400);
+    // Show tap hint again
+    tl.add(() => this.showTapHint(), 0.6);
   }
 }
 
@@ -194,10 +192,12 @@ if (document.readyState === 'loading') {
  * 5. Content reveals progressively with stagger
  * 6. Click again to reverse and return to wordmark
  *
- * Motion characteristics:
- * - Spring-inspired easing (ease-out-expo)
+ * Motion characteristics powered by GSAP:
+ * - Spring-inspired easing (expo.out)
  * - 60ms stagger between list items
  * - Backdrop blur for depth
  * - Subtle scale transforms
- * - All GPU-accelerated
+ * - All GPU-accelerated via GSAP
  */
+
+export default ContentReveal;

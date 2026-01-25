@@ -1,29 +1,30 @@
 /**
- * Vanilla JavaScript Animation - LoveFrom Style
+ * GSAP-Powered Wordmark Animation - LoveFrom Style
  *
- * Recreates premium character-by-character reveal animation
- * without dependencies. Uses Web Animations API for 60fps performance.
+ * Character-by-character reveal animation using GSAP
+ * for premium, smooth animations with spring physics.
  *
  * Animation characteristics:
  * - Staggered character reveal (150ms offset)
- * - Spring-inspired easing curve
+ * - Spring-inspired easing with GSAP
  * - Animated cursor tracking
  * - GPU-accelerated transforms
  */
+
+import gsap from 'gsap';
 
 class AnimatedWordmark {
   constructor(element, options = {}) {
     this.element = element;
     this.text = options.text || element.textContent;
-    this.staggerDelay = options.staggerDelay || 150; // ms between characters
-    this.charDuration = options.charDuration || 500; // ms per character
-    this.initialDelay = options.initialDelay || 300; // ms before start
-    this.cursorBlinkDuration = options.cursorBlinkDuration || 530; // ms
+    this.staggerDelay = options.staggerDelay || 0.15; // seconds between characters
+    this.charDuration = options.charDuration || 0.5; // seconds per character
+    this.initialDelay = options.initialDelay || 0.3; // seconds before start
+    this.cursorBlinkDuration = options.cursorBlinkDuration || 0.53; // seconds
     this.showCursor = options.showCursor !== false;
 
-    // Spring-inspired easing: ease-out-expo
-    // Approximates spring physics without complex calculations
-    this.easing = 'cubic-bezier(0.16, 1, 0.3, 1)';
+    // GSAP timeline for coordinated animations
+    this.timeline = gsap.timeline({ paused: true });
 
     this.init();
   }
@@ -31,19 +32,22 @@ class AnimatedWordmark {
   init() {
     // Clear element and prepare for animation
     this.element.textContent = '';
-    this.element.style.display = 'inline-flex';
-    this.element.style.position = 'relative';
-    this.element.style.willChange = 'transform, opacity';
+    gsap.set(this.element, {
+      display: 'inline-flex',
+      position: 'relative'
+    });
 
     // Create character spans
     this.characters = this.text.split('').map((char, index) => {
       const span = document.createElement('span');
       span.textContent = char;
-      span.style.display = 'inline-block';
-      span.style.opacity = '0';
-      span.style.transform = 'translateY(8px)';
-      span.style.willChange = 'transform, opacity';
-      span.style.minWidth = char === ' ' ? '0.25em' : 'auto';
+
+      gsap.set(span, {
+        display: 'inline-block',
+        opacity: 0,
+        y: 8,
+        minWidth: char === ' ' ? '0.25em' : 'auto'
+      });
 
       this.element.appendChild(span);
       return { element: span, index };
@@ -53,89 +57,75 @@ class AnimatedWordmark {
     if (this.showCursor) {
       this.cursor = document.createElement('span');
       this.cursor.className = 'animated-cursor';
-      this.cursor.style.display = 'inline-block';
-      this.cursor.style.width = '2px';
-      this.cursor.style.height = '0.85em';
-      this.cursor.style.backgroundColor = 'currentColor';
-      this.cursor.style.marginLeft = '0.05em';
-      this.cursor.style.opacity = '0';
-      this.cursor.style.transform = 'translateY(0.08em) scale(0.8)';
-      this.cursor.style.willChange = 'opacity, transform';
+
+      gsap.set(this.cursor, {
+        display: 'inline-block',
+        width: '2px',
+        height: '0.85em',
+        backgroundColor: 'currentColor',
+        marginLeft: '0.05em',
+        opacity: 0,
+        y: '0.08em',
+        scale: 0.8
+      });
 
       this.element.appendChild(this.cursor);
     }
 
     // Start animation after initial delay
-    setTimeout(() => this.animate(), this.initialDelay);
+    setTimeout(() => this.animate(), this.initialDelay * 1000);
   }
 
   animate() {
-    // Show cursor immediately at the start
+    // Master timeline for all animations
+    const tl = gsap.timeline();
+
+    // Show cursor at the start
     if (this.showCursor && this.cursor) {
       // Position cursor before first character
       this.element.insertBefore(this.cursor, this.characters[0].element);
 
-      this.cursor.animate(
-        [
-          { opacity: 0, transform: 'translateY(0.08em) scale(0.8)' },
-          { opacity: 1, transform: 'translateY(0.08em) scale(1)' }
-        ],
-        {
-          duration: 200,
-          easing: 'ease-out',
-          fill: 'forwards'
-        }
-      );
+      tl.to(this.cursor, {
+        opacity: 1,
+        scale: 1,
+        duration: 0.2,
+        ease: 'power2.out'
+      }, 0);
 
-      // Start cursor blink
-      setTimeout(() => {
-        this.startCursorBlink();
-      }, 200);
+      // Start cursor blink after it appears
+      tl.add(() => this.startCursorBlink(), 0.2);
     }
 
     // Animate each character with stagger
     this.characters.forEach(({ element, index }) => {
-      const delay = index * this.staggerDelay;
+      const startTime = index * this.staggerDelay;
 
-      setTimeout(() => {
-        // Use Web Animations API for 60fps GPU-accelerated animation
-        element.animate(
-          [
-            { opacity: 0, transform: 'translateY(8px)' },
-            { opacity: 1, transform: 'translateY(0)' }
-          ],
-          {
-            duration: this.charDuration,
-            easing: this.easing,
-            fill: 'forwards'
+      tl.to(element, {
+        opacity: 1,
+        y: 0,
+        duration: this.charDuration,
+        ease: 'expo.out', // GSAP's spring-inspired easing
+        onStart: () => {
+          if (this.showCursor && this.cursor) {
+            this.updateCursorPosition(index);
           }
-        );
-
-        // Move cursor to track character reveals
-        if (this.showCursor && this.cursor) {
-          this.updateCursorPosition(index);
         }
-      }, delay);
+      }, startTime);
     });
 
     // Hide cursor after animation completes
     if (this.showCursor && this.cursor) {
-      const totalDuration = (this.characters.length * this.staggerDelay) + this.charDuration + 1000;
-      setTimeout(() => {
-        this.stopCursorBlink();
-        this.cursor.animate(
-          [
-            { opacity: 1 },
-            { opacity: 0 }
-          ],
-          {
-            duration: 300,
-            easing: 'ease-out',
-            fill: 'forwards'
-          }
-        );
-      }, totalDuration);
+      const hideTime = (this.characters.length * this.staggerDelay) + this.charDuration + 1;
+
+      tl.add(() => this.stopCursorBlink(), hideTime);
+      tl.to(this.cursor, {
+        opacity: 0,
+        duration: 0.3,
+        ease: 'power2.out'
+      }, hideTime);
     }
+
+    return tl;
   }
 
   updateCursorPosition(charIndex) {
@@ -152,30 +142,26 @@ class AnimatedWordmark {
   }
 
   startCursorBlink() {
-    // Create blink animation
-    this.blinkAnimation = this.cursor.animate(
-      [
-        { opacity: 1 },
-        { opacity: 0 },
-        { opacity: 1 }
-      ],
-      {
-        duration: this.cursorBlinkDuration,
-        iterations: Infinity,
-        easing: 'ease-in-out'
-      }
-    );
+    // Create infinite blink animation with GSAP
+    this.blinkAnimation = gsap.to(this.cursor, {
+      opacity: 0,
+      duration: this.cursorBlinkDuration / 2,
+      repeat: -1,
+      yoyo: true,
+      ease: 'power1.inOut'
+    });
   }
 
   stopCursorBlink() {
     if (this.blinkAnimation) {
-      this.blinkAnimation.cancel();
+      this.blinkAnimation.kill();
     }
   }
 
   // Public method to replay animation
   replay() {
     this.stopCursorBlink();
+    gsap.killTweensOf([this.element, ...this.characters.map(c => c.element), this.cursor]);
     this.init();
   }
 }
@@ -191,9 +177,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   elements.forEach(element => {
     new AnimatedWordmark(element, {
-      staggerDelay: 150,
-      charDuration: 500,
-      initialDelay: 300,
+      staggerDelay: 0.15,
+      charDuration: 0.5,
+      initialDelay: 0.3,
       showCursor: true
     });
   });
@@ -205,9 +191,9 @@ document.addEventListener('DOMContentLoaded', () => {
  * const wordmark = document.querySelector('.wordmark');
  * const animation = new AnimatedWordmark(wordmark, {
  *   text: 'goutham',
- *   staggerDelay: 150,
- *   charDuration: 500,
- *   initialDelay: 300,
+ *   staggerDelay: 0.15,
+ *   charDuration: 0.5,
+ *   initialDelay: 0.3,
  *   showCursor: true
  * });
  *
@@ -216,6 +202,4 @@ document.addEventListener('DOMContentLoaded', () => {
  */
 
 // Export for module usage
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = AnimatedWordmark;
-}
+export default AnimatedWordmark;
